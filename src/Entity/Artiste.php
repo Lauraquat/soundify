@@ -18,12 +18,17 @@ class Artiste
 
     #[ORM\OneToOne(inversedBy: 'artiste', targetEntity: User::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private $user;
+    private ?User $user = null;
 
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 
     public function getName(): ?string
