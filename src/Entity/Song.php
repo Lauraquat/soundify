@@ -16,22 +16,22 @@ class Song
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $name = 'Unknown';
+    private string $name = 'Unknown';
 
     #[ORM\ManyToMany(targetEntity: Artiste::class, inversedBy: 'songs')]
-    private $artistes = [];
+    private ArrayCollection $artistes;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $file = '';
+    private string $file = '';
 
     #[ORM\Column(type: 'integer')]
-    private $duration = 0;
+    private int $duration = 0;
 
     #[ORM\Column(type: 'integer')]
-    private $listeningNumber = 0;
+    private int $listeningNumber = 0;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $image = null;
+    private ?string $image = null;
 
     public function __construct()
     {
@@ -63,18 +63,18 @@ class Song
         return $this->artistes;
     }
 
-    public function addArtist(Artiste $artist): self
+    public function addArtist(Artiste $artiste): self
     {
-        if (!$this->artistes->contains($artist)) {
-            $this->artistes[] = $artist;
+        if (!$this->artistes->contains($artiste)) {
+            $this->artistes[] = $artiste;
         }
 
         return $this;
     }
 
-    public function removeArtist(Artiste $artist): self
+    public function removeArtist(Artiste $artiste): self
     {
-        $this->artistes->removeElement($artist);
+        $this->artistes->removeElement($artiste);
 
         return $this;
     }
