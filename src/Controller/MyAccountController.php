@@ -51,8 +51,8 @@ class MyAccountController extends AbstractController
             }
             
 
-            if(!empty($data['artiste']) && $user->getArtiste() === null){
-                $artiste = new Artiste;
+            if(!empty($data['artiste'])){
+                $artiste = $user->getArtiste() ?? new Artiste;
                 $artiste->setName($data['artiste']);
                 $user->setArtiste($artiste);
             }
