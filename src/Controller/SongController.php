@@ -39,7 +39,7 @@ class SongController extends AbstractController
             $song->addArtist($artiste);
 
             /** @var UploadedFile $file */
-            $file = $form->get('file')->getData();
+            $file = $form->get('formFile')->getData();
             $newFilename = $song->getName().'.'.$file->guessExtension();
 
             if($file->isValid()){
@@ -51,7 +51,7 @@ class SongController extends AbstractController
             }
 
 
-            $image = $form->get('image')->getData();
+            $image = $form->get('formImage')->getData();
             $newImagename = $song->getName().'.'.$image->guessExtension();
 
             if($image->isValid()){
@@ -88,39 +88,53 @@ class SongController extends AbstractController
     #[Security('is_granted("IsArtiste")')]
     public function edit(Request $request, Song $song, SongRepository $songRepository, CoreSecurity $security, FilesystemOperator $defaultStorage): Response
     {
-        $form = $this->createForm(SongType::class, $song);
+        $form = $this->createForm(SongType::class, $song, ['creationMode' => false]);
         $form->handleRequest($request);
 
         $this->denyAccessUnlessGranted('isArtistOwner', $song);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var User $user */
-            $user = $security->getUser();
-            $artiste = $user->getArtiste();
-            $song->addArtist($artiste);
 
-            /** @var UploadedFile $file */
-            $file = $form->get('file')->getData();
-            $newFilename = $song->getName().'.'.$file->guessExtension();
+            $file = $form->get('formFile')->getData();
 
-            if($file->isValid()){
-                $stream = fopen($file->getRealPath(), 'r+');
-                $defaultStorage->writeStream('songFiles/'.$newFilename, $stream);
-                fclose($stream);
+            if($file !=null){
 
-                $song->setFile($newFilename);
+                $newFilename = $song->getName().'.'.$file->guessExtension();
+
+                /** @var User $user */
+                $user = $security->getUser();
+                $artiste = $user->getArtiste();
+                $song->addArtist($artiste);
+
+                /** @var UploadedFile $file */
+                $file = $form->get('formFile')->getData();
+                $newFilename = $song->getName().'.'.$file->guessExtension();
+
+                if($file->isValid()){
+                    $stream = fopen($file->getRealPath(), 'r+');
+                    $defaultStorage->writeStream('songFiles/'.$newFilename, $stream);
+                    fclose($stream);
+
+                    $song->setFile($newFilename);
+                }
             }
 
 
-            $image = $form->get('image')->getData();
-            $newImagename = $song->getName().'.'.$image->guessExtension();
+            $image = $form->get('formImage')->getData();
 
-            if($image->isValid()){
-                $stream = fopen($image->getRealPath(), 'r+');
-                $defaultStorage->writeStream('songCovers/'.$newImagename, $stream);
-                fclose($stream);
+            if($image !=null){
 
-                $song->setImage($newImagename);
+                $image = $form->get('formImage')->getData();
+                $newImagename = $song->getName().'.'.$image->guessExtension();
+
+                if($image->isValid()){
+                    $stream = fopen($image->getRealPath(), 'r+');
+                    $defaultStorage->writeStream('songCovers/'.$newImagename, $stream);
+                    fclose($stream);
+
+                    $song->setImage($newImagename);
+                }
+
             }
 
             $songRepository->add($song, true);
@@ -136,8 +150,11 @@ class SongController extends AbstractController
 
 
     #[Route('/{id}', name: 'app_song_delete', methods: ['POST'])]
+    #[Security('is_granted("IsArtiste")')]
     public function delete(Request $request, Song $song, SongRepository $songRepository): Response
     {
+        $this->denyAccessUnlessGranted('isArtistOwner', $song);
+
         if ($this->isCsrfTokenValid('delete'.$song->getId(), $request->request->get('_token'))) {
             $songRepository->remove($song, true);
         }

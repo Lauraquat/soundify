@@ -14,10 +14,10 @@ class SongType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('file', FileType::class, array('data_class' => null))
+            ->add('formFile', FileType::class, array('required' => $options['creationMode']))
             ->add('duration')
             ->add('listeningNumber')
-            ->add('image', FileType::class, array('data_class' => null))
+            ->add('formImage', FileType::class, array('required' => $options['creationMode']))
         ;
     }
 
@@ -25,6 +25,7 @@ class SongType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Song::class,
+            'creationMode' => true,
         ]);
     }
 }

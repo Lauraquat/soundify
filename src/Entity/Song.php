@@ -6,6 +6,7 @@ use App\Repository\SongRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: SongRepository::class)]
 class Song
@@ -24,6 +25,8 @@ class Song
     #[ORM\Column(type: 'string', length: 255)]
     private string $file = '';
 
+    private ?File $formFile = null;
+
     #[ORM\Column(type: 'integer')]
     private int $duration = 0;
 
@@ -32,6 +35,9 @@ class Song
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
+
+    private ?File $formImage = null;
+
 
     public function __construct()
     {
@@ -90,6 +96,31 @@ class Song
 
         return $this;
     }
+    
+    public function getformFile(): ?File
+    {
+        return $this->formFile;
+    }
+
+    public function setformFile(?File $formFile): self
+    {
+        $this->formFile = $formFile;
+
+        return $this;
+    }
+
+    public function getformImage(): ?File
+    {
+        return $this->formImage;
+    }
+
+    public function setformImage(?File $formImage): self
+    {
+        $this->formImage = $formImage;
+
+        return $this;
+    }
+
 
     public function getDuration(): ?int
     {
