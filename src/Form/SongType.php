@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Song;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -13,10 +14,10 @@ class SongType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('file')
+            ->add('file', FileType::class, array('data_class' => null))
             ->add('duration')
             ->add('listeningNumber')
-            ->add('image')
+            ->add('image', FileType::class, array('data_class' => null))
         ;
     }
 

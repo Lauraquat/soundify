@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Song;
 use App\Form\SongType;
+use League\Flysystem\FilesystemOperator;
 use App\Repository\SongRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +26,7 @@ class SongController extends AbstractController
 
     #[Route('/new', name: 'app_song_new', methods: ['GET', 'POST'])]
     #[Security('is_granted("IsArtiste")')]
-    public function new(Request $request, SongRepository $songRepository, CoreSecurity $security): Response
+    public function new(Request $request, SongRepository $songRepository, CoreSecurity $security, FilesystemOperator $defaultStorage): Response
     {
         $song = new Song();
         $form = $this->createForm(SongType::class, $song);
@@ -36,6 +37,32 @@ class SongController extends AbstractController
             $user = $security->getUser();
             $artiste = $user->getArtiste();
             $song->addArtist($artiste);
+
+            /** @var UploadedFile $file */
+            $file = $form->get('file')->getData();
+            $newFilename = $song->getName().'.'.$file->guessExtension();
+
+            if($file->isValid()){
+                $stream = fopen($file->getRealPath(), 'r+');
+                $defaultStorage->writeStream('songFiles/'.$newFilename, $stream);
+                fclose($stream);
+
+                $song->setFile($newFilename);
+            }
+
+
+            $image = $form->get('image')->getData();
+            $newImagename = $song->getName().'.'.$image->guessExtension();
+
+            if($image->isValid()){
+                $stream = fopen($image->getRealPath(), 'r+');
+                $defaultStorage->writeStream('songCovers/'.$newImagename, $stream);
+                fclose($stream);
+
+                $song->setImage($newImagename);
+            }
+            
+                       
             $songRepository->add($song, true);
 
             return $this->redirectToRoute('app_song_index', [], Response::HTTP_SEE_OTHER);
@@ -47,6 +74,7 @@ class SongController extends AbstractController
         ]);
     }
 
+
     #[Route('/{id}', name: 'app_song_show', methods: ['GET'])]
     public function show(Song $song): Response
     {
@@ -55,13 +83,46 @@ class SongController extends AbstractController
         ]);
     }
 
+
     #[Route('/{id}/edit', name: 'app_song_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Song $song, SongRepository $songRepository): Response
+    #[Security('is_granted("IsArtiste")')]
+    public function edit(Request $request, Song $song, SongRepository $songRepository, CoreSecurity $security, FilesystemOperator $defaultStorage): Response
     {
         $form = $this->createForm(SongType::class, $song);
         $form->handleRequest($request);
 
+        $this->denyAccessUnlessGranted('isArtistOwner', $song);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $user */
+            $user = $security->getUser();
+            $artiste = $user->getArtiste();
+            $song->addArtist($artiste);
+
+            /** @var UploadedFile $file */
+            $file = $form->get('file')->getData();
+            $newFilename = $song->getName().'.'.$file->guessExtension();
+
+            if($file->isValid()){
+                $stream = fopen($file->getRealPath(), 'r+');
+                $defaultStorage->writeStream('songFiles/'.$newFilename, $stream);
+                fclose($stream);
+
+                $song->setFile($newFilename);
+            }
+
+
+            $image = $form->get('image')->getData();
+            $newImagename = $song->getName().'.'.$image->guessExtension();
+
+            if($image->isValid()){
+                $stream = fopen($image->getRealPath(), 'r+');
+                $defaultStorage->writeStream('songCovers/'.$newImagename, $stream);
+                fclose($stream);
+
+                $song->setImage($newImagename);
+            }
+
             $songRepository->add($song, true);
 
             return $this->redirectToRoute('app_song_index', [], Response::HTTP_SEE_OTHER);
@@ -72,6 +133,7 @@ class SongController extends AbstractController
             'form' => $form,
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_song_delete', methods: ['POST'])]
     public function delete(Request $request, Song $song, SongRepository $songRepository): Response

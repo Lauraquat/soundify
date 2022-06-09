@@ -1,4 +1,21 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+{{ form_label(form.name) }}
+{{ form_widget(form.name) }}
+<br/>
+{{ form_label(form.file) }} {{ ' (' ~ song.file ~ ') ' }}
+{{ form_widget(form.file) }}
+<br/>
+{{ form_label(form.duration) }} {{ ' (' ~ song.duration ~ ') ' }}
+{{ form_widget(form.duration) }}
+<br/>
+{{ form_label(form.listeningNumber) }} {{ ' (' ~ song.listeningNumber ~ ') ' }}
+{{ form_widget(form.listeningNumber) }}
+<br/>
+{{ form_label(form.image) }} {{ ' (' ~ song.image ~ ') ' }}
+{{ form_widget(form.image) }}
+<br/>
+
+
+<button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}

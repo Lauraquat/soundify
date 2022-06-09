@@ -19,7 +19,7 @@ class Song
     private string $name = 'Unknown';
 
     #[ORM\ManyToMany(targetEntity: Artiste::class, inversedBy: 'songs')]
-    private ArrayCollection $artistes;
+    private Collection $artistes;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $file = '';
